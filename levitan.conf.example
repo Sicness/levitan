@@ -1,5 +1,5 @@
 {
-    "bind" : "",
+    "bind" : "127.0.0.1",
     "port" : 10001,
     "rooms" : [
         {"test" : "Team!"}

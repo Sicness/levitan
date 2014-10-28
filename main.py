@@ -54,7 +54,7 @@ if __name__ == '__main__':
         except KeyError as e:
             print('Plugin section %s cannot be loaded as getting name returns KeyError: %s' % (plugin, e))
 
-    # Creat plugin class instances
+    # Create plugin class instances
     plugin_instances = []
     for plugin in load_plugins:
         module = __import__('Plugins.' + plugin)
@@ -82,14 +82,14 @@ if __name__ == '__main__':
 
     bind = parsed_cfg['bind']
     port = int(parsed_cfg['port'])  # just in case
-    print ('Running Levitan on %s:%d' % (bind, port))
+    print ('Running TCP socket on %s:%d' % (bind, port))
 
-    # Listen!
+    # Listen the socket!
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((bind, port))
     s.listen(1)
 
-    while 1:
+    while True:
         conn, addr = s.accept()
         data = conn.recv(1024)
         print "recv: ", data
