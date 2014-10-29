@@ -7,8 +7,23 @@ import socket
 import skypebot
 
 
-def dispatch(s):
-    pass
+def dispatch(bot, message, rooms):
+    print message
+    try:
+        res = json.loads(message)
+        if not 'message' in res:
+            raise ValueError
+    except ValueError:
+        print('valueError!')
+        return
+
+    if 'room' in res:
+        for room in rooms:
+            if res['room'] in room:
+                bot.send(room[res['room']], res['message'])
+            else:
+                print "unknown room %s" % (res['room'])
+
 
 def load_config(cfile):
 
@@ -108,7 +123,7 @@ if __name__ == '__main__':
         conn, addr = s.accept()
         data = conn.recv(1024)
         print "recv: ", data
-        dispatch(data)
+        dispatch(bot, data, cfg['rooms'])
         conn.close()
 
     s.close()
