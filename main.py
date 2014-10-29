@@ -10,11 +10,8 @@ import skypebot
 def dispatch(s):
     pass
 
-def check_load_config(cfile = './levitan.conf'):
-    print('Reading config file: %s' % cfile)
+def load_config(cfile):
 
-    if not os.path.isfile(cfile):
-        return -1, 'Config file not found: %s ' % cfile, None
     with open(cfile, 'r') as f:
         try:
             data = json.load(f)
@@ -36,10 +33,29 @@ if __name__ == '__main__':
 
     try:
         config_file = sys.argv[1]
+        if not os.path.isfile(config_file):
+            raise IndexError
     except IndexError:
-        print('No external config file passed, using default one!')
+        print('No external config file passed or it doesn\'t exist, trying one in possible directories!')
+        config_file = 'levitan.conf'
 
-    config_status, error_msg, parsed_cfg = check_load_config(config_file) if config_file else check_load_config()
+        possible_conf_locations = [os.path.join(os.getcwd(), config_file),
+                                   os.path.join(os.path.expanduser('~'), config_file),
+                                   os.path.join('/etc', config_file)]
+        found = False
+        for location in possible_conf_locations:
+            if os.path.isfile(location):
+                config_file = location
+                found = True
+                break
+
+        if not found:
+            print('Configuration file wasn\'t found anywhere in the filesystem. Exiting')
+            sys.exit(-1)
+
+    print('Reading config file: %s' % config_file)
+
+    config_status, error_msg, cfg = load_config(config_file)
     if config_status:
         print('Error occurred during reading configuration file:\n %s ' % error_msg)
         sys.exit(config_status)
@@ -48,7 +64,7 @@ if __name__ == '__main__':
 
     # Create plugin names list
     load_plugins = []
-    for plugin in parsed_cfg['plugins']:
+    for plugin in cfg['plugins']:
         try:
             load_plugins.append(plugin['name'])
         except KeyError as e:
@@ -62,12 +78,11 @@ if __name__ == '__main__':
         for elem in dir(plugin_class):
             obj = getattr(plugin_class, elem)
             if inspect.isclass(obj):
-                plugin_instances.append(obj(filter(lambda x: x['name'] == plugin, parsed_cfg['plugins'])[0]))
+                plugin_instances.append(obj(filter(lambda x: x['name'] == plugin, cfg['plugins'])[0]))
                 break
 
     # Test them
     for plugin in plugin_instances:
-        print plugin.hello()
         print('Testing %s' % plugin.hello())
         t = plugin.check_plugin_config()
         if t['status']:
@@ -80,8 +95,8 @@ if __name__ == '__main__':
     print('Starting SkypeBot and passing plugins')
     bot = skypebot.SkypeBot(plugin_instances)
 
-    bind = parsed_cfg['bind']
-    port = int(parsed_cfg['port'])  # just in case
+    bind = cfg['bind']
+    port = int(cfg['port'])  # just in case
     print ('Running TCP socket on %s:%d' % (bind, port))
 
     # Listen the socket!
