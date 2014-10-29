@@ -19,3 +19,8 @@ class SkypeBot:
                 r = plugin.plugin_process_request(msg.Body)
                 if r['status']:
                     msg.Chat.SendMessage(r['message'])
+
+    def send(self, topic, message):
+        for chat in self.skype.Chats:
+            if chat.Topic == topic:
+                chat.SendMessage(message)
