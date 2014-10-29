@@ -26,7 +26,6 @@ def dispatch(bot, message, rooms):
 
 
 def load_config(cfile):
-
     with open(cfile, 'r') as f:
         try:
             data = json.load(f)
