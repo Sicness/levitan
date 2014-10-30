@@ -9,6 +9,10 @@ class PluginTemplate:
     def __init__(self, config):
         """
         __init__ - obviously create instance
+
+        :param config: configuration section, which describes this particular plugin (chosen by
+        name in pluginInitializer.initialize_plugins
+        :return instance of plugin
         """
         self.name = config['name']
         self.requests = []

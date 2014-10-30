@@ -32,7 +32,7 @@ if __name__ == '__main__':
         print('Error occurred during reading configuration file:\n %s ' % error_msg)
         sys.exit(status)
 
-    print('Complete reading.')
+    print('Reading completed.')
 
     # Create plugin list from all the plugins in configuration
     plugin_name_list = create_initial_plugin_list(cfg)

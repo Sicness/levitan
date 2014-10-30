@@ -10,14 +10,13 @@ Levitan was our internal tools to share information about builds, environments a
 
 It was intended to do the following things:
 
-* Inform about taking and freeing environemnts
+* Inform about taking and freeing environments
 * Inform about passing builds from Jenkins
 * Inform about Jenkins jobs statuses and versions
 
-We are trying to rectreate Levitan as an open-source and *extensionable* project.
+We are trying to recreate Levitan as an open-source and *extensible* project.
 
-
-##Used technologies
+##Dependencies
 
 * Python 2.7
 * [Skype4Py](https://github.com/awahlig/skype4py)
