@@ -27,7 +27,7 @@ via, for example `nc` formatted as `echo '{"room":"roomKey", "message":"Your Mes
 `roomKey` is the key for your rooms, defined in `rooms` section in configuration file like here:
 `{"test" : "Levitan2 Test"}`
 
-Other features and plugin description can be found on project wiki.
+Other features and plugin description can be found on [project wiki](https://github.com/Sicness/levitan/wiki).
 
 ##Dependencies
 
