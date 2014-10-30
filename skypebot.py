@@ -19,7 +19,7 @@ class SkypeBot:
         print("INCOMING> %s" % msg.Body)
         if status == Skype4Py.cmsReceived:
             for plugin in self.plugins:
-                r = plugin.plugin_process_request(msg.Body)
+                r = plugin.plugin_process_request(msg)
                 if r['status']:
                     msg.Chat.SendMessage(r['message'])
 

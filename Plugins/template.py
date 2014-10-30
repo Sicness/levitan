@@ -17,19 +17,24 @@ class PluginTemplate:
         self.name = config['name']
         self.requests = []
 
-    def plugin_process_request(self, incoming):
+    def plugin_process_request(self, skypeMessage):
         """
         This method runs match against self.request list of regexps
         and returns check status and calls self.process as message
+
+        :param skypeMessage: instance of Skype4Py.Chat.ChatMessage
+
         """
         for rq in self.requests:
-            if re.match(rq, incoming, re.IGNORECASE):
-                return {'status': True, 'message': self.process(incoming)}
+            if re.match(rq, skypeMessage.Body, re.IGNORECASE):
+                return {'status': True, 'message': self.process(skypeMessage)}
         return {'status': False, 'message': 'None'}
 
-    def process(self, incoming):
+    def process(self, skypeMessage):
         """
         This method does all the things. It's not a must to return anything, but usually it's expected
+
+        :param skypeMessage: instance of Skype4Py.Chat.ChatMessage
         """
         return None
 

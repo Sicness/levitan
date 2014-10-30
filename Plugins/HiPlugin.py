@@ -10,13 +10,13 @@ class HiPlugin(PluginTemplate):
         PluginTemplate.__init__(self, config)
         self.requests = ["^\s*hello\s*$"]
 
-    def plugin_process_request(self, incoming):
+    def plugin_process_request(self, skypeMessage):
         """
         It doesn't override template version
         """
-        return PluginTemplate.plugin_process_request(self, incoming)
+        return PluginTemplate.plugin_process_request(self, skypeMessage)
 
-    def process(self, incoming):
+    def process(self, skypeMessage):
         return "hello"
 
     def check_plugin_config(self):
