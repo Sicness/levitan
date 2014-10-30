@@ -21,26 +21,26 @@ def create_initial_plugin_list(cfg):
 def initialize_plugins(plugin_name_list, cfg):
     """
     Create plugin objects and run their internal checks
-    :param plugin_list: the raw list from create_initial_plugin_list
+    :param plugin_name_list: the raw list from create_initial_plugin_list
     :param cfg: configuration file
     :return: plugins: list of checked plugin instances
     """
     print('\nInitializing and checking plugins:')
     plugins = []
-    for plugin in plugin_name_list:
-        module = __import__('Plugins.' + plugin)
-        plugin_class = getattr(module, plugin)
-        for elem in dir(plugin_class):
-            obj = getattr(plugin_class, elem)
-            if inspect.isclass(obj):
-                instance = obj(filter(lambda x: x['name'] == plugin, cfg['plugins'])[0])
+    for name in plugin_name_list:
+        module = __import__('Plugins.' + name)
+        plugin_class = getattr(module, name)
+        obj = getattr(plugin_class, filter(lambda x: x == name, dir(plugin_class))[0])
+        if inspect.isclass(obj):
+            instance = obj(filter(lambda x: x['name'] == name, cfg['plugins'])[0])
 
-                print('Checking: %s\n' % instance.hello())
-                check_response = instance.check_plugin_config()
-                if check_response['status']:
-                    print('%s OK.' % instance.hello())
-                    plugins.append(instance)
-                else:
-                    print('%s FAIL. Error: %s.' % (instance.hello(), check_response['errorMessage']))
-                break
+            print('Checking: %s\n' % instance.hello())
+            check_response = instance.check_plugin_config()
+            if check_response['status']:
+                print('%s OK.' % instance.hello())
+                plugins.append(instance)
+            else:
+                print('%s FAIL. Error: %s.' % (instance.hello(), check_response['errorMessage']))
+        else:
+            print('Plugin with name %s failed to initialize: unable to create instance.' % name)
     return plugins
