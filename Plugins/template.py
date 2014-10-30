@@ -42,7 +42,7 @@ class PluginTemplate:
         """
         This method runs check, if all  self.config passed all the requested variables
         """
-        return {'status': True, 'errorMessage': None}
+        return {'status': False, 'errorMessage': "Plugin check is not overridden, but has to be. Marked as failure."}
 
     def hello(self):
         """
