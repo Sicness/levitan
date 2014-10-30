@@ -7,14 +7,14 @@ import socket
 import skypebot
 
 
-def dispatch(bot, message, rooms):
+def dispatch(message, rooms):
     print message
     try:
         res = json.loads(message)
         if not 'message' in res:
             raise ValueError
     except ValueError:
-        print('valueError!')
+        print('Incoming message was malformed')
         return
 
     if 'room' in res:
@@ -22,7 +22,7 @@ def dispatch(bot, message, rooms):
             if res['room'] in room:
                 bot.send(room[res['room']], res['message'])
             else:
-                print "unknown room %s" % (res['room'])
+                print('Unknown room %s' % (res['room']))
 
 
 def load_config(cfile):
@@ -120,9 +120,9 @@ if __name__ == '__main__':
 
     while True:
         conn, addr = s.accept()
-        data = conn.recv(1024)
-        print "recv: ", data
-        dispatch(bot, data, cfg['rooms'])
+        recv_data = conn.recv(1024)
+        print ("recv: %s" % recv_data)
+        dispatch(recv_data, cfg['rooms'])
         conn.close()
 
     s.close()
