@@ -17,24 +17,24 @@ class PluginTemplate:
         self.name = config['name']
         self.requests = []
 
-    def plugin_process_request(self, skypeMessage):
+    def plugin_process_request(self, skype_message):
         """
         This method runs match against self.request list of regexps
         and returns check status and calls self.process as message
 
-        :param skypeMessage: instance of Skype4Py.Chat.ChatMessage
+        :param skype_message: instance of Skype4Py.Chat.ChatMessage
 
         """
         for rq in self.requests:
-            if re.match(rq, skypeMessage.Body, re.IGNORECASE):
-                return {'status': True, 'message': self.process(skypeMessage)}
+            if re.match(rq, skype_message.Body, re.IGNORECASE):
+                return {'status': True, 'message': self.process(skype_message)}
         return {'status': False, 'message': 'None'}
 
-    def process(self, skypeMessage):
-        """
+    def process(self, skype_message):
+        self.message_ = """
         This method does all the things. It's not a must to return anything, but usually it's expected
 
-        :param skypeMessage: instance of Skype4Py.Chat.ChatMessage
+        :param skype_message: instance of Skype4Py.Chat.ChatMessage
         """
         return None
 
@@ -42,7 +42,7 @@ class PluginTemplate:
         """
         This method runs check, if all  self.config passed all the requested variables
         """
-        return {'status': True, 'errorMessage': None}
+        return {'status': False, 'errorMessage': "Plugin check is not overridden, but has to be. Marked as failure."}
 
     def hello(self):
         """
