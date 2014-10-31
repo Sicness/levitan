@@ -25,7 +25,6 @@ def dispatch(message, rooms):
 
 
 if __name__ == '__main__':
-
     # Load config
     status, error_msg, cfg = load_config(sys.argv)
     if status:
