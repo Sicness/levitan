@@ -27,12 +27,12 @@ def initialize_plugins(plugin_name_list, cfg):
     for name in plugin_name_list:
         print('Initializing: %s' % name)
         try:
-            module = __import__('Plugins.' + name)
+            module = __import__('plugins.' + name)
             plugin_class = getattr(module, name)
             obj = getattr(plugin_class, filter(lambda x: x == name, dir(plugin_class))[0])
             if inspect.isclass(obj):
 
-                instance = obj(cfg['plugins'][name])
+                instance = obj(cfg)
 
                 print('Checking: %s' % instance.hello())
                 check_response = instance.check_plugin_config()

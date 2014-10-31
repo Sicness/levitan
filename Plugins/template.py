@@ -3,7 +3,7 @@ import re
 
 class PluginTemplate:
     """
-    This class is template for Levitan Plugins
+    This class is template for Levitan plugins
     Here are the methods, that must be overloaded (except plugin_process_request) for correct behaviour
     """
     def __init__(self, config=None):
@@ -23,7 +23,6 @@ class PluginTemplate:
         and returns check status and calls self.process as message
 
         :param skype_message: instance of Skype4Py.Chat.ChatMessage
-
         """
         for rq in self.requests:
             if re.match(rq, skype_message.Body, re.IGNORECASE):
