@@ -7,6 +7,13 @@
         }
     ,
     "plugins" : {
-        "HiPlugin": { }
+        "HiPlugin": { },
+         "JenkinsJob": {
+            "jenkins_url" : "jenkins.example.com:8080/jenkins",
+            "authorization" : "true",
+            "user" : "user",
+            "password" : "77eca7da351bf191d47f2b98c6dec987",
+            "job" : "Jenkins-Job"
+        }
     }
 }
