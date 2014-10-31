@@ -6,7 +6,7 @@ class PluginTemplate:
     This class is template for Levitan Plugins
     Here are the methods, that must be overloaded (except plugin_process_request) for correct behaviour
     """
-    def __init__(self, config):
+    def __init__(self, config=None):
         """
         __init__ - obviously create instance
 
