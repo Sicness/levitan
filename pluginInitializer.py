@@ -31,7 +31,8 @@ def initialize_plugins(plugin_name_list, cfg):
             plugin_class = getattr(module, name)
             obj = getattr(plugin_class, filter(lambda x: x == name, dir(plugin_class))[0])
             if inspect.isclass(obj):
-                instance = obj(*cfg['plugins'][name])
+
+                instance = obj(cfg['plugins'][name])
 
                 print('Checking: %s' % instance.hello())
                 check_response = instance.check_plugin_config()
