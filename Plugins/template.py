@@ -6,16 +6,14 @@ class PluginTemplate:
     This class is template for Levitan Plugins
     Here are the methods, that must be overloaded (except plugin_process_request) for correct behaviour
     """
-    def __init__(self, name, config):
+    def __init__(self, config):
         """
         __init__ - obviously create instance
 
-        :param name: plugin name
         :param config: configuration section, which describes this particular plugin (chosen by
-        name in pluginInitializer.initialize_plugins
+        name in pluginInitializer.initialize_plugins. It is not obligatory parameter in derived classes
         :return instance of plugin
         """
-        self.name = name
         self.config = config
         self.requests = []
 
@@ -50,4 +48,4 @@ class PluginTemplate:
         """
         Return name (or some additional information). Used on init.
         """
-        return "Plugin"
+        return self.__class__.__name__
