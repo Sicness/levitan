@@ -6,8 +6,9 @@ import skypebot
 from pluginInitializer import create_initial_plugin_list, initialize_plugins
 from configInitializer import load_config
 
+
 def dispatch(message, rooms):
-    print message
+    print(message)
     try:
         res = json.loads(message)
         if not 'message' in res:
@@ -17,15 +18,13 @@ def dispatch(message, rooms):
         return
 
     if 'room' in res:
-        for room in rooms:
-            if res['room'] in room:
-                bot.send(room[res['room']], res['message'])
-            else:
-                print('Unknown room %s' % (res['room']))
+        if res['room'] in rooms.keys():
+            bot.send(rooms[res['room']], res['message'])
+        else:
+            print('Unknown room tag %s' % (res['room']))
 
 
 if __name__ == '__main__':
-
     # Load config
     status, error_msg, cfg = load_config(sys.argv)
     if status:

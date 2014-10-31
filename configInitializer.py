@@ -1,6 +1,7 @@
 import json
 import os
 
+
 def parse_config(file):
     """
     If configuration file was found, then parse it and get

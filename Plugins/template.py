@@ -11,10 +11,10 @@ class PluginTemplate:
         __init__ - obviously create instance
 
         :param config: configuration section, which describes this particular plugin (chosen by
-        name in pluginInitializer.initialize_plugins
+        name in pluginInitializer.initialize_plugins. It is not obligatory parameter in derived classes
         :return instance of plugin
         """
-        self.name = config['name']
+        self.config = config
         self.requests = []
 
     def plugin_process_request(self, skype_message):
@@ -48,4 +48,4 @@ class PluginTemplate:
         """
         Return name (or some additional information). Used on init.
         """
-        return "Plugin"
+        return self.__class__.__name__

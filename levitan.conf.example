@@ -1,8 +1,12 @@
 {
     "bind" : "127.0.0.1",
     "port" : 10001,
-    "rooms" : [
-        {"test" : "Team!"}
-    ],
-    "plugins" : [ {"name": "HiPlugin"} ]
+    "rooms" :
+        {
+            "test" : "Levitan2 Test"
+        }
+    ,
+    "plugins" : {
+        "HiPlugin": { }
+    }
 }
