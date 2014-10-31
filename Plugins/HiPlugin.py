@@ -6,8 +6,8 @@ class HiPlugin(PluginTemplate):
     HiPlugin - simplest plugin to check that Levitan is running.
     It responds 'hello' to 'hello' from user
     """
-    def __init__(self, config):
-        PluginTemplate.__init__(self, config)
+    def __init__(self, name, config):
+        PluginTemplate.__init__(self, name, config)
         self.requests = ["^\s*hello\s*$"]
 
     # def plugin_process_request(self, skype_message):

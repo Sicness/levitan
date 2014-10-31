@@ -6,10 +6,7 @@
             "test" : "Levitan2 Test"
         }
     ,
-    "plugins" :
-        [
-            {
-                "name": "HiPlugin"
-            }
-        ]
+    "plugins" : {
+        "HiPlugin": { }
+    }
 }

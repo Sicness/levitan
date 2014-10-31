@@ -6,8 +6,9 @@ import skypebot
 from pluginInitializer import create_initial_plugin_list, initialize_plugins
 from configInitializer import load_config
 
+
 def dispatch(message, rooms):
-    print message
+    print(message)
     try:
         res = json.loads(message)
         if not 'message' in res:
@@ -15,7 +16,7 @@ def dispatch(message, rooms):
     except ValueError:
         print('Incoming message was malformed')
         return
-    print(rooms.keys())
+
     if 'room' in res:
         if res['room'] in rooms.keys():
             bot.send(rooms[res['room']], res['message'])

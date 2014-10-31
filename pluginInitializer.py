@@ -9,12 +9,7 @@ def create_initial_plugin_list(cfg):
     """
     print('\nLoading plugins:')
     # Create plugin names list
-    plugins = []
-    for plugin in cfg['plugins']:
-        try:
-            plugins.append(plugin['name'])
-        except KeyError as e:
-            print('Plugin section %s cannot be loaded as getting name returns KeyError: %s' % (plugin, e))
+    plugins = cfg['plugins'].keys()
     return plugins
 
 
@@ -25,6 +20,7 @@ def initialize_plugins(plugin_name_list, cfg):
     :param cfg: configuration file
     :return: plugins: list of checked plugin instances
     """
+    print plugin_name_list
     print('\nInitializing and checking plugins:')
     plugins = []
     for name in plugin_name_list:
@@ -32,7 +28,7 @@ def initialize_plugins(plugin_name_list, cfg):
         plugin_class = getattr(module, name)
         obj = getattr(plugin_class, filter(lambda x: x == name, dir(plugin_class))[0])
         if inspect.isclass(obj):
-            instance = obj(filter(lambda x: x['name'] == name, cfg['plugins'])[0])
+            instance = obj(name, cfg['plugins'][name])
 
             print('Checking: %s\n' % instance.hello())
             check_response = instance.check_plugin_config()

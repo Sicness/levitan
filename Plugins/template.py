@@ -6,15 +6,17 @@ class PluginTemplate:
     This class is template for Levitan Plugins
     Here are the methods, that must be overloaded (except plugin_process_request) for correct behaviour
     """
-    def __init__(self, config):
+    def __init__(self, name, config):
         """
         __init__ - obviously create instance
 
+        :param name: plugin name
         :param config: configuration section, which describes this particular plugin (chosen by
         name in pluginInitializer.initialize_plugins
         :return instance of plugin
         """
-        self.name = config['name']
+        self.name = name
+        self.config = config
         self.requests = []
 
     def plugin_process_request(self, skype_message):
