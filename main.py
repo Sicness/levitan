@@ -15,13 +15,12 @@ def dispatch(message, rooms):
     except ValueError:
         print('Incoming message was malformed')
         return
-
+    print(rooms.keys())
     if 'room' in res:
-        for room in rooms:
-            if res['room'] in room:
-                bot.send(room[res['room']], res['message'])
-            else:
-                print('Unknown room %s' % (res['room']))
+        if res['room'] in rooms.keys():
+            bot.send(rooms[res['room']], res['message'])
+        else:
+            print('Unknown room tag %s' % (res['room']))
 
 
 if __name__ == '__main__':
