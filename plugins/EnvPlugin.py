@@ -46,7 +46,7 @@ class Environment:
 
 class EnvPlugin(PluginTemplate):
     """
-    EnvPlugin - managing environments across developrs. You can take or free envs, which are gathered from
+    EnvPlugin - managing environments across developers. You can take or free envs, which are gathered from
     configuration file. It doesn't actually lock any server to you, but gives information to your teammates with
     which environment you are currently working.
 
@@ -98,7 +98,11 @@ class EnvPlugin(PluginTemplate):
         if False in map(lambda x: x in avail_room_tags, local_room_tags):
             return {'status': False, 'errorMessage': 'Plugin has rooms, which are not defined globally'}
 
-        envs_by_room_list = [room['envs'] for room in local_rooms.values()]
+        try:
+            envs_by_room_list = [room['envs'] for room in local_rooms.values()]
+        except KeyError:
+            return {'status': False, 'errorMessage': 'Some room has no envs section'}
+
         if False in map(lambda x: sorted(list(set(x))) == sorted(x), envs_by_room_list):
             return {'status': False, 'errorMessage': 'Some room has duplicate envs'}
 
@@ -144,12 +148,16 @@ class EnvPlugin(PluginTemplate):
 
         return '\n'.join(answer) if answer else 'You haven\'t taken any envs'
 
-    def check_expire(self, ):
+    def check_expire(self):
         envs_by_tag = self.envs[self.room_tag]
         try:
             expire_time = int(self.config['plugins'][self.name]['rooms'][self.room_tag]['expireTime'])
         except KeyError:
             expire_time = 6
+
+        if expire_time == -1:
+            return
+
         for env in envs_by_tag:
             if env.taken:
                 env.time_taken = datetime.datetime.now() - env.start_time
