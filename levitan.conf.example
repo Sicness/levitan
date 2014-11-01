@@ -1,19 +1,39 @@
 {
-    "bind" : "127.0.0.1",
-    "port" : 10001,
-    "rooms" :
+    "bind": "127.0.0.1",
+    "port": 10001,
+    "rooms":
         {
-            "test" : "Levitan2 Test"
+            "test": "Levitan2 Test"
+            "personal": "My own personal chat"
         }
     ,
     "plugins" : {
         "HiPlugin": { },
          "JenkinsJob": {
-            "jenkins_url" : "jenkins.example.com:8080/jenkins",
-            "authorization" : "true",
-            "user" : "user",
-            "password" : "77eca7da351bf191d47f2b98c6dec987",
-            "job" : "Jenkins-Job"
+            "jenkins_url": "jenkins.example.com:8080/jenkins",
+            "authorization": "true",
+            "user": "user",
+            "password": "77eca7da351bf191d47f2b98c6dec987",
+            "job": "Jenkins-Job"
+        },
+        "EnvPlugin": {
+            "rooms": {
+                "test": {
+                    "envs": [
+                        "alpha",
+                        "beta",
+                        "gamma",
+                        "delta",
+                        "echo"
+                    ]
+                },
+               "personal": {
+                   "envs": [
+                       "my_ci",
+                       "my_prod"
+                   ]
+               }
+            }
         }
     }
 }
