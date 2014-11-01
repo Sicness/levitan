@@ -42,9 +42,13 @@ if __name__ == '__main__':
     print('Starting SkypeBot and passing plugins')
     bot = skypebot.SkypeBot(plugins)
 
+
     bind = cfg['bind']
     port = int(cfg['port'])  # just in case
+
     print ('Running TCP socket on %s:%d' % (bind, port))
+    if bind == '127.0.0.1' or bind == 'localhost':
+        print('You are listening socket on localhost. NC Feature is available only for you')
 
     # Listen the socket!
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,4 +63,3 @@ if __name__ == '__main__':
         conn.close()
 
     s.close()
-
