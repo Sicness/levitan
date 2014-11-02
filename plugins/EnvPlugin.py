@@ -65,6 +65,7 @@ class EnvPlugin(PluginTemplate):
     This was the most useful part of classical Levitan.
 
     Available commands:
+    ?env help - print this help
     ?env - get the list of all the envs and statuses
     ?env take <env name> - take an env
     ?env free <env name> - set the env free
@@ -77,10 +78,11 @@ class EnvPlugin(PluginTemplate):
         self.room_tag = None
         self.config = config
         self.requests = ['^\s*\?env\s*$',
+                         '^\s*\?env\s+help*$',
                          '^\s*\?env\s+take\s+([^ ]*)\s*$',
                          '^\s*\?env\s+free\s+([^ ]*)\s*$'
         ]
-        self.method = zip(self.requests, [self.get_env, self.take_env, self.free_env])
+        self.method = zip(self.requests, [self.get_env, self.help, self.take_env, self.free_env])
         self.envs = {}
 
     def process(self, message):
@@ -125,6 +127,9 @@ class EnvPlugin(PluginTemplate):
     def get_env(self):
         self.check_expire()
         return '\n'.join(map(str, self.envs[self.room_tag]))
+
+    def help(self):
+        return self.__doc__
 
     def take_env(self, env):
         self.check_expire()
