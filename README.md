@@ -23,14 +23,14 @@ Levitan constists of two core components: socket listening module and Skype modu
 
 Responding to commands depends on plugins. We have some examples here, which we are using in our team. Most of plugins are intended to run in chat rooms, not individual chats (like EnvPlugin), so one Levitan instance can manage different teams. 
 
-The other part is responding to data, coming from socket listener. It's called NC Feature and described below.
+The other part is responding to data, coming from socket listener. It's called Socket Feature and described below.
 
 We recommend creating a separate account for Levitan and running it separartely. For instance, you can create Docker image with X11 on remote serever and run it from there. 
 
 Levitan itself and its plugins are configured via `levitan.conf` file formatted as JSON. [Here](https://github.com/Sicness/levitan/wiki/Configuration) you can find more information on configuring Levitan or you can just check `levitan.conf.example`. 
 
 
-###NC Feature
+###Socket Feature
 
 Levitan features are mainly described by used plugins. However, one built-in option is available
 disregarding its addons.
@@ -39,7 +39,7 @@ When Levitan is started, it begins to listen to defined `bind:port` in configura
 via, for example `nc` formatted as `echo '{"room":"roomKey", "message":"Your Message"}' | nc bind port`.
 
 `roomKey` is the key for your rooms, defined in `rooms` section in configuration file like here:
-`{"test" : "Levitan2 Test"}`
+`{"team1" : "Levitan2 Test"}`
 
 
 ###Plugins
