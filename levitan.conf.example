@@ -3,8 +3,8 @@
     "port": 10001,
     "rooms":
         {
-            "test": "Levitan2 Test"
-            "personal": "My own personal chat"
+            "team1": "Levitan2 Test"
+            "team2": "My own personal chat"
         }
     ,
     "plugins" : {
@@ -18,7 +18,7 @@
         },
         "EnvPlugin": {
             "rooms": {
-                "test": {
+                "team1": {
                     "envs": [
                         "alpha",
                         "beta",
@@ -27,7 +27,7 @@
                         "echo"
                     ]
                 },
-               "personal": {
+               "team2": {
                    "envs": [
                        "my_ci",
                        "my_prod"

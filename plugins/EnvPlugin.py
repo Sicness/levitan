@@ -4,7 +4,13 @@ import datetime
 from template import PluginTemplate
 
 
-def human(delta):
+def fancy_time_output(delta):
+    """
+    Convert raw datetime.datetime object to fancy string
+
+    :param delta: datetime.datetime.now() - Environment.start_time object
+    :return: string, showing for how long an instance was taken
+    """
     if delta.seconds < 60:
         return 'just now'
     elif (delta.seconds / 60) < 2:
@@ -16,27 +22,33 @@ def human(delta):
 
 
 class Environment:
+    """
+    This class provides environment entity with its name, status and time difference between
+    taking it and current time.
+
+    Also it provides fancy output for Skype message.
+    """
     def __init__(self, name):
         self.env_name = name
         self.taken = False
         self.start_time = None
         self.time_taken = None
-        self.person = None
+        self.owner = None
 
     def take(self, person):
-        self.person = person
+        self.owner = person
         self.taken = True
         self.start_time = datetime.datetime.now()
 
     def free(self):
         self.taken = False
-        self.person = None
+        self.owner = None
         self.time_taken = None
         self.start_time = None
 
     def __repr__(self):
         if self.taken:
-            return "%s taken by %s %s" % (self.env_name, self.person, human(self.time_taken))
+            return "%s taken by %s %s" % (self.env_name, self.owner, fancy_time_output(self.time_taken))
         else:
             return "%s free" % self.env_name
 
@@ -149,6 +161,10 @@ class EnvPlugin(PluginTemplate):
         return '\n'.join(answer) if answer else 'You haven\'t taken any envs'
 
     def check_expire(self):
+        """
+        On each request this function updates time_taken value (difference between times when the env was first taken
+        and current time). If this time is bigger than expire_time, it sets the env free.
+        """
         envs_by_tag = self.envs[self.room_tag]
         try:
             expire_time = int(self.config['plugins'][self.name]['rooms'][self.room_tag]['expireTime'])

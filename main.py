@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     print ('Running TCP socket on %s:%d' % (bind, port))
     if bind == '127.0.0.1' or bind == 'localhost':
-        print('You are listening socket on localhost. NC Feature is available only for you')
+        print('You are listening socket on localhost. Socket listening feature is only available for you')
 
     # Listen the socket!
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
