@@ -28,12 +28,14 @@ class BCSWrapperPlugin(PluginTemplate):
         self.requests = ['^\s*\?bcs\s+help*$',
                          '^\s*\?bcs\s+list*$',
                          '^\s*\?bcs\s+show\s+([^ ]*)\s*$',
-                         '^\s*\?bcs\s+build\s+\w\w\s*$']
+                         '^\s*\?bcs\s+build\s+([^ ]*)\s+([^ ]*)\s*$',
+                         '^\s*\?bcs\s+commit\s+([^ ]*)\s+([^ ]*)\s*$']
 
         self.method = zip(self.requests, [self.help,
                                           self.get_list,
                                           self.show_repo,
-                                          self.build])
+                                          self.build,
+                                          self.commit])
 
     def process(self, message):
         for t in self.method:
@@ -65,8 +67,10 @@ class BCSWrapperPlugin(PluginTemplate):
         return self.process_rq('%s/log' % repo)
 
     def build(self, repo, build):
-        print 'here'
         return self.process_rq('%s/build/%s' % (repo, build))
+
+    def commit(self, repo, commit):
+        return self.process_rq('%s/commit/%s' % (repo, commit))
 
     def process_rq(self, address):
         r = requests.get('http://%s:%d/%s' % (self.host, self.port, address))
