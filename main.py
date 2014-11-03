@@ -42,6 +42,10 @@ if __name__ == '__main__':
     print('Starting SkypeBot and passing plugins')
     bot = skypebot.SkypeBot(plugins)
 
+    # Tell chat rooms that Levitan is running and list plugins
+    for room in cfg['rooms'].keys():
+        bot.send(cfg['rooms'][room],
+                 'Levitan is up and running. I have the following plugins:\n%s ' % '\n'.join(plugin_name_list))
 
     bind = cfg['bind']
     port = int(cfg['port'])  # just in case
