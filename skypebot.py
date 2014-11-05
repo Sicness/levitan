@@ -17,7 +17,7 @@ class SkypeBot:
 
     def MessageStatus(self, msg, status):
         print("INCOMING> %s" % msg.Body)
-        msg.MarkAsSeen()
+        # msg.MarkAsSeen()
         if status == Skype4Py.cmsReceived:
             for plugin in self.plugins:
                 r = plugin.plugin_process_request(msg)
