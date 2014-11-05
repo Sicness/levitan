@@ -45,25 +45,37 @@ if __name__ == '__main__':
     # Tell chat rooms that Levitan is running and list plugins
     for room in cfg['rooms'].keys():
         bot.send(cfg['rooms'][room],
-                 'Levitan is up and running. I have the following plugins:\n%s ' % '\n'.join(plugin_name_list))
+                 'Levitan is up and running. I have the following plugins running:\n%s ' %
+                 '\n'.join(x.__class__.__name__ for x in plugins))
+
 
     bind = cfg['bind']
     port = int(cfg['port'])  # just in case
 
     print ('Running TCP socket on %s:%d' % (bind, port))
+    local_only = False
     if bind == '127.0.0.1' or bind == 'localhost':
         print('You are listening socket on localhost. Socket listening feature is only available for you')
+        local_only = True
+
+    for room in cfg['rooms'].keys():
+        if local_only:
+            bot.send(cfg['rooms'][room], 'Socket listening only on localhost')
+        else:
+            bot.send(cfg['rooms'][room], 'Socket listening on the network on %d port' % port)
 
     # Listen the socket!
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((bind, port))
     s.listen(1)
-
-    while True:
-        conn, addr = s.accept()
-        recv_data = conn.recv(1024)
-        print ("recv: %s" % recv_data)
-        dispatch(recv_data, cfg['rooms'])
-        conn.close()
+    try:
+        while True:
+            conn, addr = s.accept()
+            recv_data = conn.recv(1024)
+            print ("recv: %s" % recv_data)
+            dispatch(recv_data, cfg['rooms'])
+            conn.close()
+    except KeyboardInterrupt:
+        print ('Levitan has exited')
 
     s.close()
