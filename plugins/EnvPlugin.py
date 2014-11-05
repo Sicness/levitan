@@ -2,7 +2,8 @@ import re
 import datetime
 
 from template import PluginTemplate
-
+import gc
+import skypebot
 
 def fancy_time_output(delta):
     """
@@ -65,37 +66,115 @@ class EnvPlugin(PluginTemplate):
     This was the most useful part of classical Levitan.
 
     Available commands:
+    For both personal chats and chat rooms:
     ?env help - print this help
-    ?env - get the list of all the envs and statuses
     ?env take <env name> - take an env
     ?env free <env name> - set the env free
-    ?env free me - set all envs, taken by me, free
+
+    For personal chats:
+    ?env <room tag> - get the list of all the envs and statuses
+    ?env take <env name> <room tag> - take an env, used if duplicates found.
+    ?env free <env name> <room tag> - free an env, used if duplicates found.
     """
 
     def __init__(self, config):
         self.name = str(self.__class__.__name__)
+        self.skypebot_instance = None
         self.sender = None
         self.room_tag = None
         self.config = config
         self.requests = ['^\s*\?env\s*$',
                          '^\s*\?env\s+help*$',
                          '^\s*\?env\s+take\s+([^ ]*)\s*$',
-                         '^\s*\?env\s+free\s+([^ ]*)\s*$'
-        ]
-        self.method = zip(self.requests, [self.get_env, self.help, self.take_env, self.free_env])
+                         '^\s*\?env\s+free\s+([^ ]*)\s*$',
+                         '^\s*\?env\s+([^ ]*)\s*$',
+                         '^\s*\?env\s+take\s+([^ ]*)\s+([^ ]*)\s*$',
+                         '^\s*\?env\s+free\s+([^ ]*)\s+([^ ]*)\s*$'
+                         ]
+
         self.envs = {}
 
     def process(self, message):
         self.sender = message.Sender.FullName
-        try:
-            self.room_tag = self.config['rooms'].keys()[self.config['rooms'].values().index(message.Chat.Topic)]
-        except ValueError:
-            return 'EnvPlugin can only be called in chat rooms, not individually'
 
-        for t in self.method:
-            match = re.match(t[0], message.Body, re.IGNORECASE)
-            if match:
-                return t[1](*match.groups())
+        is_personal = False
+        tag = ''
+        if message.Chat.Topic:
+            tag = self.config['rooms'].keys()[self.config['rooms'].values().index(message.Chat.Topic)]
+        else:
+            is_personal = True
+
+        if re.match('^\s*\?env\s+help*$', message.Body, re.IGNORECASE):
+            return self.help()
+
+        if re.match('^\s*\?env\s*$', message.Body, re.IGNORECASE):
+            if is_personal:
+                return 'Please specify room ?env <room_tag>. Available tags:\n%s' % \
+                       '\n'.join(self.config['plugins'][self.name]['rooms'].keys())
+            else:
+                return self.get_env(tag)
+
+        env_match = re.match('^\s*\?env\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
+        if env_match:
+            tag = env_match.groups()[0]
+            if self.sender_in_room(message.Sender, tag):
+                return self.get_env(tag)
+            else:
+                return 'You are not authorized to make changes in this room or room doesn\'t exist'
+
+        take_match = re.match('^\s*\?env\s+take\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
+        if take_match:
+            env = take_match.groups()[0]
+            if is_personal:
+                tags = self.get_rooms_by_env(env)
+                if not tags:
+                    return 'There is no watched room with such env'
+                if len(tags) > 1:
+                    return 'There are several rooms with such env. Specify room by ?env take <env> <room>'
+
+                if self.sender_in_room(message.Sender, tags[0]):
+                    return self.take_env(env, tags[0])
+                else:
+                    return 'You are not authorized to make changes in this room or room doesn\'t exist'
+            else:
+                return self.take_env(env, tag)
+
+        take_match_personal = re.match('^\s*\?env\s+take\s+([^ ]*)\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
+        if take_match_personal:
+            env = take_match_personal.groups()[0]
+            tag = take_match_personal.groups()[1]
+            if self.sender_in_room(message.Sender, tag):
+                return self.take_env(env, tag)
+            else:
+                return 'You are not authorized to make changes in this room or room doesn\'t exist'
+
+        free_match = re.match('^\s*\?env\s+free\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
+        if free_match:
+            env = free_match.groups()[0]
+            if is_personal:
+                tags = self.get_rooms_by_env(env)
+                if not tags:
+                    return 'There is no watched room with such env'
+                if len(tags) > 1:
+                    return 'There are several rooms with such env. Specify room by ?env free <env> <room>'
+
+                if self.sender_in_room(message.Sender, tags[0]):
+                    return self.free_env(env, tags[0])
+                else:
+                    return 'You are not authorized to make changes in this room or room doesn\'t exist'
+            else:
+                return self.free_env(env, tag)
+
+        free_match_personal = re.match('^\s*\?env\s+free\s+([^ ]*)\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
+        if free_match_personal:
+            env = free_match_personal.groups()[0]
+            tag = free_match_personal.groups()[1]
+            if self.sender_in_room(message.Sender, tag):
+                return self.free_env(env, tag)
+            else:
+                return 'You are not authorized to make changes in this room or room doesn\'t exist'
+
+
 
     def check_plugin_config(self):
         try:
@@ -117,23 +196,20 @@ class EnvPlugin(PluginTemplate):
         except KeyError:
             return {'status': False, 'errorMessage': 'Some room has no envs section'}
 
-        if False in map(lambda x: sorted(list(set(x))) == sorted(x), envs_by_room_list):
-            return {'status': False, 'errorMessage': 'Some room has duplicate envs'}
-
         self.envs = dict((name, map(Environment, envl)) for name, envl in zip(local_room_tags, envs_by_room_list))
 
         return {'status': True, 'errorMessage': None}
 
-    def get_env(self):
-        self.check_expire()
-        return '\n'.join(map(str, self.envs[self.room_tag]))
+    def get_env(self, tag):
+        self.check_expire(tag)
+        return '\n'.join(map(str, self.envs[tag]))
 
     def help(self):
         return self.__doc__
 
-    def take_env(self, env):
-        self.check_expire()
-        envs_by_tag = self.envs[self.room_tag]
+    def take_env(self, env, tag):
+        self.check_expire(tag)
+        envs_by_tag = self.envs[tag]
         try:
             env_obj = filter(lambda x: x.env_name == env, envs_by_tag)[0]
             env_obj.take(self.sender)
@@ -143,36 +219,31 @@ class EnvPlugin(PluginTemplate):
                                                                    ', '.join(map(lambda x: x.env_name,
                                                                                  envs_by_tag)))
 
-    def free_env(self, env):
-        self.check_expire()
-        envs_by_tag = self.envs[self.room_tag]
-        if env == 'me':
-            env_obj_list = filter(lambda x: x.person == self.sender, envs_by_tag)
-        else:
-            try:
-                env_obj_list = filter(lambda x: x.env_name == env, envs_by_tag)
-            except IndexError:
-                return '%s doesn\'t seem to exist in env list: %s.' % (env,
-                                                                       ', '.join(map(lambda x: x.env_name,
+    def free_env(self, env, tag):
+        self.check_expire(tag)
+        envs_by_tag = self.envs[tag]
+
+        try:
+            env_obj = filter(lambda x: x.env_name == env, envs_by_tag)[0]
+        except IndexError:
+            return '%s doesn\'t seem to exist in env list: %s.' % (env,
+                                                                   ', '.join(map(lambda x: x.env_name,
                                                                                      envs_by_tag)))
-        answer = []
-        for e in env_obj_list:
-            if e.taken:
-                e.free()
-                answer.append('Env %s is now free' % e.env_name)
-            else:
-                answer.append('Env %s wasn\'t taken by anyone' % e.env_name)
+        if env_obj.taken:
+            env_obj.free()
+            return 'Env %s is now free' % env
+        else:
+            return 'Env %s wasn\'t taken by anyone' % env
 
-        return '\n'.join(answer) if answer else 'You haven\'t taken any envs'
 
-    def check_expire(self):
+    def check_expire(self, tag):
         """
         On each request this function updates time_taken value (difference between times when the env was first taken
         and current time). If this time is bigger than expire_time, it sets the env free.
         """
-        envs_by_tag = self.envs[self.room_tag]
+        envs_by_tag = self.envs[tag]
         try:
-            expire_time = int(self.config['plugins'][self.name]['rooms'][self.room_tag]['expireTime'])
+            expire_time = int(self.config['plugins'][self.name]['rooms'][tag]['expireTime'])
         except KeyError:
             expire_time = 6
 
@@ -185,3 +256,47 @@ class EnvPlugin(PluginTemplate):
                 hours = env.time_taken.seconds / 3600
                 if hours >= expire_time:
                     env.free()
+
+    def sender_in_room(self, sender, room_tag):
+        """
+        This method checks, if sender belongs any watched room
+        :param skype_message: sender's
+        :return: -1 if room_tag is not in watched
+        """
+        self.get_skype_bot()
+        if not room_tag in self.config['plugins'][self.name]['rooms'].keys():
+            return False
+
+        # Get watched rooms
+        room_topics_list = [self.config['rooms'][x] for x in self.config['plugins'][self.name]['rooms'].keys()]
+        room_object_list = filter((lambda c: c.Topic in room_topics_list),
+                                  [x for x in self.skypebot_instance.skype.Chats])
+
+        for room in room_object_list:
+            for user in room.Members:
+                if sender == user and room.Topic == self.config['rooms'][room_tag]:
+                    return True
+
+        return False
+
+    def get_skype_bot(self):
+        if self.skypebot_instance is None:
+            # Get SkypeBot instance for one-on-one messaging
+            for obj in gc.get_objects():
+                if isinstance(obj, skypebot.SkypeBot):
+                    self.skypebot_instance = obj
+                    break
+
+
+    def get_rooms_by_env(self, env):
+        self.get_skype_bot()
+        local_rooms = self.config['plugins'][self.name]['rooms']
+        envs_by_rooms = [room['envs'] for room in local_rooms.values()]
+        zipped_envs_by_rooms =  zip (local_rooms.keys(), envs_by_rooms)
+        print zipped_envs_by_rooms
+        rooms = []
+        for room in zipped_envs_by_rooms:
+            if env in room[1]:
+                rooms.append(room[0])
+
+        return rooms
