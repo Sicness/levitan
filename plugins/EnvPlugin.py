@@ -91,7 +91,10 @@ class EnvPlugin(PluginTemplate):
                          '^\s*\?env\s+take\s+([^ ]*)\s+([^ ]*)\s*$',
                          '^\s*\?env\s+free\s+([^ ]*)\s+([^ ]*)\s*$'
                          ]
-
+        self.methods = [self.help_match,
+                        self.env_match, self.env_match_personal,
+                        self.take_match, self.take_match_personal,
+                        self.free_match, self.free_match_personal]
         self.envs = {}
 
     def process(self, message):
@@ -104,9 +107,18 @@ class EnvPlugin(PluginTemplate):
         else:
             is_personal = True
 
+        for method in self.methods:
+            response = method(message, tag, is_personal)
+            if not response is None:
+                return response
+
+    def help_match(self, message, tag=None, is_personal=False):
         if re.match('^\s*\?env\s+help*$', message.Body, re.IGNORECASE):
             return self.help()
 
+        return None
+
+    def env_match(self, message, tag=None, is_personal=False):
         if re.match('^\s*\?env\s*$', message.Body, re.IGNORECASE):
             if is_personal:
                 return 'Please specify room ?env <room_tag>. Available tags:\n%s' % \
@@ -114,6 +126,9 @@ class EnvPlugin(PluginTemplate):
             else:
                 return self.get_env(tag)
 
+        return None
+
+    def env_match_personal(self, message, tag, is_personal=True):
         env_match = re.match('^\s*\?env\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
         if env_match:
             tag = env_match.groups()[0]
@@ -122,6 +137,9 @@ class EnvPlugin(PluginTemplate):
             else:
                 return 'You are not authorized to make changes in this room or room doesn\'t exist'
 
+        return None
+
+    def take_match(self, message, tag, is_personal=False):
         take_match = re.match('^\s*\?env\s+take\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
         if take_match:
             env = take_match.groups()[0]
@@ -139,6 +157,9 @@ class EnvPlugin(PluginTemplate):
             else:
                 return self.take_env(env, tag)
 
+        return None
+
+    def take_match_personal(self, message, tag, is_personal=True):
         take_match_personal = re.match('^\s*\?env\s+take\s+([^ ]*)\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
         if take_match_personal:
             env = take_match_personal.groups()[0]
@@ -148,6 +169,7 @@ class EnvPlugin(PluginTemplate):
             else:
                 return 'You are not authorized to make changes in this room or room doesn\'t exist'
 
+    def free_match(self, message, tag, is_personal=False):
         free_match = re.match('^\s*\?env\s+free\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
         if free_match:
             env = free_match.groups()[0]
@@ -165,6 +187,9 @@ class EnvPlugin(PluginTemplate):
             else:
                 return self.free_env(env, tag)
 
+        return None
+
+    def free_match_personal(self, message, tag, is_personal=True):
         free_match_personal = re.match('^\s*\?env\s+free\s+([^ ]*)\s+([^ ]*)\s*$', message.Body, re.IGNORECASE)
         if free_match_personal:
             env = free_match_personal.groups()[0]
@@ -174,7 +199,7 @@ class EnvPlugin(PluginTemplate):
             else:
                 return 'You are not authorized to make changes in this room or room doesn\'t exist'
 
-
+        return None
 
     def check_plugin_config(self):
         try:
@@ -293,7 +318,6 @@ class EnvPlugin(PluginTemplate):
         local_rooms = self.config['plugins'][self.name]['rooms']
         envs_by_rooms = [room['envs'] for room in local_rooms.values()]
         zipped_envs_by_rooms =  zip (local_rooms.keys(), envs_by_rooms)
-        print zipped_envs_by_rooms
         rooms = []
         for room in zipped_envs_by_rooms:
             if env in room[1]:
