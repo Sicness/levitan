@@ -278,7 +278,7 @@ class EnvPlugin(PluginTemplate):
         for env in envs_by_tag:
             if env.taken:
                 env.time_taken = datetime.datetime.now() - env.start_time
-                hours = env.time_taken.seconds / 3600
+                hours = env.time_taken.total_seconds() / 3600
                 if hours >= expire_time:
                     env.free()
 
