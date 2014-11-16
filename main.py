@@ -9,6 +9,7 @@ from configInitializer import load_config
 
 def dispatch(message, rooms):
     print(message)
+    message = response.replace('/', '\'/')
     try:
         res = json.loads(message)
         if not 'message' in res:
