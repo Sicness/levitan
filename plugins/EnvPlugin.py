@@ -110,7 +110,7 @@ class EnvPlugin(PluginTemplate):
         for method in self.methods:
             response = method(message, tag, is_personal)
             if not response is None:
-                return response
+                return response.replace('/', ' /', 1)
 
     def help_match(self, message, tag=None, is_personal=False):
         if re.match('^\s*\?env\s+help*$', message.Body, re.IGNORECASE):

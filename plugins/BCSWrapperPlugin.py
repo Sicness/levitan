@@ -8,7 +8,7 @@ from template import PluginTemplate
 
 class BCSWrapperPlugin(PluginTemplate):
     """
-    BCSWP - simple wrapper around Build-Correlation Service. This service is intended to tel you
+    BCSWP - simple wrapper around Build-Correlation Service. This service is intended to tell you
     about builds on each repo and corresponding version.
 
 
@@ -75,7 +75,3 @@ class BCSWrapperPlugin(PluginTemplate):
     def process_rq(self, address):
         r = requests.get('http://%s:%d/%s' % (self.host, self.port, address))
         return '\n' + r.content
-
-
-
-
