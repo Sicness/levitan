@@ -30,7 +30,12 @@ class JenkinsJob(PluginTemplate):
             if build.is_running():
                 build_params=build._data['actions'][3]['parameters']
                 p=dict([(i['name'], i['value']) for i in build_params])
-                return "CI process is busy by %s | %s | %s | %s\ngit fetch gerrit %s" % (p['GERRIT_EVENT_ACCOUNT_NAME'], p['GERRIT_PATCHSET_REVISION'][:7], p['GERRIT_CHANGE_SUBJECT'], p['GERRIT_CHANGE_URL'], p['GERRIT_REFSPEC'])
+                return "CI process is busy by %s | %s | %s | %s\ngit fetch gerrit %s" \
+                       % (p['GERRIT_EVENT_ACCOUNT_NAME'],
+                          p['GERRIT_PATCHSET_REVISION'][:7],
+                          p['GERRIT_CHANGE_SUBJECT'],
+                          p['GERRIT_CHANGE_URL'],
+                          p['GERRIT_REFSPEC'])
             else:
                 return "CI process is free"
         except Exception as e:
