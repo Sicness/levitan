@@ -217,7 +217,7 @@ class EnvPlugin(PluginTemplate):
             return {'status': False, 'errorMessage': 'Plugin has rooms, which are not defined globally'}
 
         try:
-            envs_by_room_list = [room['envs'] for room in local_rooms.values()]
+            envs_by_room_list = [sorted(room['envs']) for room in local_rooms.values()]
         except KeyError:
             return {'status': False, 'errorMessage': 'Some room has no envs section'}
 
