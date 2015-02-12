@@ -3,7 +3,7 @@
     "port": 10001,
     "rooms":
         {
-            "team1": "Levitan2 Test"
+            "team1": "Levitan2 Test",
             "team2": "My own personal chat"
         }
     ,
