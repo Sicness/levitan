@@ -37,7 +37,7 @@ class Environment:
         self.owner = None
 
     def take(self, person):
-        self.owner = person
+        self.owner = person.encode('utf-8')
         self.taken = True
         self.start_time = datetime.datetime.now()
 
@@ -49,12 +49,12 @@ class Environment:
 
     def __repr__(self):
         if self.taken:
-            return "%s taken by %s %s" % (self.env_name, self.owner, fancy_time_output(self.time_taken))
+            return u"%s taken by %s %s" % (self.env_name, self.owner.decode('utf-8'), fancy_time_output(self.time_taken))
         else:
             return "%s free" % self.env_name
 
     def __str__(self):
-        return self.__repr__()
+        return unicode(self.__repr__())
 
 
 class EnvPlugin(PluginTemplate):
@@ -227,7 +227,10 @@ class EnvPlugin(PluginTemplate):
 
     def get_env(self, tag):
         self.check_expire(tag)
-        return '\n'.join(map(str, self.envs[tag]))
+        envs_desc = []
+        for env_desc in self.envs[tag]:
+            envs_desc.append(env_desc.__str__())
+        return "\n".join(envs_desc)
 
     def help(self):
         return self.__doc__
