@@ -242,15 +242,16 @@ class EnvPlugin(PluginTemplate):
         envs_by_tag = self.envs[tag]
         try:
             env_obj = filter(lambda x: x.env_name == env, envs_by_tag)[0]
-            if env_obj.taken:
+            if env_obj.taken == False:
                 env_obj.take(self.sender)
                 return 'Env %s is now taken by %s' % (env, self.sender)
-        except IndexError:
-                return '%s doesn\'t seem to exist in env list: %s.' % (env,
-                                                                           ', '.join(map(lambda x: x.env_name,
-                                                                                         envs_by_tag)))
-             else:
+            else:
                 return 'Env %s has been already taken. Please choose another one' % env
+        except IndexError:
+            return '%s doesn\'t seem to exist in env list: %s.' % (env,
+                                                                         ', '.join(map(lambda x: x.env_name,
+                                                                                         envs_by_tag)))
+
 
     def free_env(self, env, tag):
         self.check_expire(tag)
