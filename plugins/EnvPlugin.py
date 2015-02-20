@@ -96,7 +96,7 @@ class EnvPlugin(PluginTemplate):
                         self.take_match, self.take_match_personal,
                         self.free_match, self.free_match_personal]
         self.envs = {}
-        self.current_env = []
+        #self.current_env = []
 
     def process(self, message):
         self.sender = message.Sender.FullName
@@ -238,20 +238,19 @@ class EnvPlugin(PluginTemplate):
 
 
     def take_env(self, env, tag):
-        if env not in self.current_env:
-            self.current_env.append(env)
-            self.check_expire(tag)
-            envs_by_tag = self.envs[tag]
-            try:
-                env_obj = filter(lambda x: x.env_name == env, envs_by_tag)[0]
+        self.check_expire(tag)
+        envs_by_tag = self.envs[tag]
+        try:
+            env_obj = filter(lambda x: x.env_name == env, envs_by_tag)[0]
+            if env_obj.taken:
                 env_obj.take(self.sender)
                 return 'Env %s is now taken by %s' % (env, self.sender)
-            except IndexError:
+        except IndexError:
                 return '%s doesn\'t seem to exist in env list: %s.' % (env,
-                                                                       ', '.join(map(lambda x: x.env_name,
-                                                                                     envs_by_tag)))
-        else:
-            return 'Env %s has been already taken. Please choose another one' % env
+                                                                           ', '.join(map(lambda x: x.env_name,
+                                                                                         envs_by_tag)))
+             else:
+                return 'Env %s has been already taken. Please choose another one' % env
 
     def free_env(self, env, tag):
         self.check_expire(tag)
@@ -266,7 +265,7 @@ class EnvPlugin(PluginTemplate):
         if env_obj.taken:
             env_obj.free()
             return 'Env %s is now free' % env
-            self.current_env.remove(env)
+            #self.current_env.remove(env)
         else:
             return 'Env %s wasn\'t taken by anyone' % env
 
