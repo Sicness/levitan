@@ -37,7 +37,7 @@ class Environment:
         self.owner = None
 
     def take(self, person):
-        self.owner = person
+        self.owner = person.encode('utf-8')
         self.taken = True
         self.start_time = datetime.datetime.now()
 
@@ -49,12 +49,12 @@ class Environment:
 
     def __repr__(self):
         if self.taken:
-            return "%s taken by %s %s" % (self.env_name, self.owner, fancy_time_output(self.time_taken))
+            return u"%s taken by %s %s" % (self.env_name, self.owner.decode('utf-8'), fancy_time_output(self.time_taken))
         else:
             return "%s free" % self.env_name
 
     def __str__(self):
-        return self.__repr__()
+        return unicode(self.__repr__())
 
 
 class EnvPlugin(PluginTemplate):
@@ -96,6 +96,7 @@ class EnvPlugin(PluginTemplate):
                         self.take_match, self.take_match_personal,
                         self.free_match, self.free_match_personal]
         self.envs = {}
+        #self.current_env = []
 
     def process(self, message):
         self.sender = message.Sender.FullName
@@ -227,22 +228,30 @@ class EnvPlugin(PluginTemplate):
 
     def get_env(self, tag):
         self.check_expire(tag)
-        return '\n'.join(map(str, self.envs[tag]))
+        envs_desc = []
+        for env_desc in self.envs[tag]:
+            envs_desc.append(env_desc.__str__())
+        return "\n".join(envs_desc)
 
     def help(self):
         return self.__doc__
+
 
     def take_env(self, env, tag):
         self.check_expire(tag)
         envs_by_tag = self.envs[tag]
         try:
             env_obj = filter(lambda x: x.env_name == env, envs_by_tag)[0]
-            env_obj.take(self.sender)
-            return 'Env %s is now taken by %s' % (env, self.sender)
+            if env_obj.taken == False:
+                env_obj.take(self.sender)
+                return 'Env %s is now taken by %s' % (env, self.sender)
+            else:
+                return 'Env %s has been already taken. Please choose another one' % env
         except IndexError:
             return '%s doesn\'t seem to exist in env list: %s.' % (env,
-                                                                   ', '.join(map(lambda x: x.env_name,
-                                                                                 envs_by_tag)))
+                                                                         ', '.join(map(lambda x: x.env_name,
+                                                                                         envs_by_tag)))
+
 
     def free_env(self, env, tag):
         self.check_expire(tag)
@@ -257,6 +266,7 @@ class EnvPlugin(PluginTemplate):
         if env_obj.taken:
             env_obj.free()
             return 'Env %s is now free' % env
+            #self.current_env.remove(env)
         else:
             return 'Env %s wasn\'t taken by anyone' % env
 
