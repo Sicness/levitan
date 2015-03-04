@@ -7,11 +7,8 @@ from pluginInitializer import create_initial_plugin_list, initialize_plugins
 from configInitializer import load_config
 
 
-def dispatch(message, rooms, word_filter):
+def dispatch(message, rooms):
     print(message)
-    for word in word_filter:
-        if word in message:
-            message = message.replace('/', ' /', 1)
     try:
         res = json.loads(message)
         if not 'message' in res:
@@ -22,6 +19,10 @@ def dispatch(message, rooms, word_filter):
 
     if 'room' in res:
         if res['room'] in rooms.keys():
+            if res['message'].startswith('/'):
+                res['message'] = '%c %s' % (res['message'][0],
+                                            res['message'][1:])
+
             bot.send(rooms[res['room']], res['message'])
         else:
             print('Unknown room tag %s' % (res['room']))
@@ -33,33 +34,6 @@ if __name__ == '__main__':
     if status:
         print('Error occurred during reading configuration file:\n %s ' % error_msg)
         sys.exit(status)
-    cfg['forbidden_words'] = [  '/me',
-                                '/topic',
-                                '/add',
-                                '/alertson',
-                                '/alertsoff',
-                                '/leave',
-                                '/get',
-                                '/get',
-                                '/whois',
-                                '/setrole',
-                                '/kick',
-                                '/kickban',
-                                '/get',
-                                '/get',
-                                '/set',
-                                '/setpassword',
-                                '/clearpassword',
-                                '/get',
-                                '/get',
-                                '/get',
-                                '/set',
-                                '/set',
-                                '/golive',
-                                '/invite',
-                                '/fork',
-                                '/help'
-                            ]
 
     print('Reading completed.')
 
@@ -75,8 +49,8 @@ if __name__ == '__main__':
     # Tell chat rooms that Levitan is running and list plugins
     for room in cfg['rooms'].keys():
         bot.send(cfg['rooms'][room],
-                 'Levitan is up and running. I have the following plugins running:\n%s ' %
-                 '\n'.join(x.__class__.__name__ for x in plugins))
+                'Levitan is up and running. I have the following plugins running:\n%s ' %
+                '\n'.join(x.__class__.__name__ for x in plugins))
 
 
     bind = cfg['bind']
@@ -89,6 +63,7 @@ if __name__ == '__main__':
         local_only = True
 
     for room in cfg['rooms'].keys():
+        print(room)
         if local_only:
             bot.send(cfg['rooms'][room], 'Socket listening only on localhost')
         else:
@@ -103,7 +78,7 @@ if __name__ == '__main__':
             conn, addr = s.accept()
             recv_data = conn.recv(1024)
             print ("recv: %s" % recv_data)
-            dispatch(recv_data, cfg['rooms'], cfg['forbidden_words'])
+            dispatch(recv_data, cfg['rooms'])
             conn.close()
     except KeyboardInterrupt:
         print ('Levitan has exited')

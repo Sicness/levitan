@@ -110,17 +110,7 @@ class EnvPlugin(PluginTemplate):
         for method in self.methods:
             response = method(message, tag, is_personal)
             if not response is None:
-                return self.safe_response(message)
-
-    def safe_response(self, message):
-        for word in self.config['forbbiden_words']:
-            if word in response:
-                if 'http://' in response or 'https://' in response:
-                    return response
-                else:
-                    return response.replace('/', ' /', 1)
-        return response
-
+                return response.replace('/', ' /', 1)
 
     def help_match(self, message, tag=None, is_personal=False):
         if re.match('^\s*\?env\s+help*$', message.Body, re.IGNORECASE):
@@ -230,6 +220,10 @@ class EnvPlugin(PluginTemplate):
             envs_by_room_list = [sorted(room['envs']) for room in local_rooms.values()]
         except KeyError:
             return {'status': False, 'errorMessage': 'Some room has no envs section'}
+
+        if '/' in str(envs_by_room_list):
+            return {'status': False, 'errorMessage': 'Slashes are not allowed in names/tags'}
+
 
         self.envs = dict((name, map(Environment, envl)) for name, envl in zip(local_room_tags, envs_by_room_list))
 
