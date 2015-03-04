@@ -7,9 +7,11 @@ from pluginInitializer import create_initial_plugin_list, initialize_plugins
 from configInitializer import load_config
 
 
-def dispatch(message, rooms):
+def dispatch(message, rooms, word_filter):
     print(message)
-    message = message.replace('/', ' /', 1)
+    for word in word_filter:
+        if word in message:
+            message = message.replace('/', ' /', 1)
     try:
         res = json.loads(message)
         if not 'message' in res:
@@ -31,6 +33,33 @@ if __name__ == '__main__':
     if status:
         print('Error occurred during reading configuration file:\n %s ' % error_msg)
         sys.exit(status)
+    cfg['forbidden_words'] = [  '/me',
+                                '/topic',
+                                '/add',
+                                '/alertson',
+                                '/alertsoff',
+                                '/leave',
+                                '/get',
+                                '/get',
+                                '/whois',
+                                '/setrole',
+                                '/kick',
+                                '/kickban',
+                                '/get',
+                                '/get',
+                                '/set',
+                                '/setpassword',
+                                '/clearpassword',
+                                '/get',
+                                '/get',
+                                '/get',
+                                '/set',
+                                '/set',
+                                '/golive',
+                                '/invite',
+                                '/fork',
+                                '/help'
+                            ]
 
     print('Reading completed.')
 
@@ -74,7 +103,7 @@ if __name__ == '__main__':
             conn, addr = s.accept()
             recv_data = conn.recv(1024)
             print ("recv: %s" % recv_data)
-            dispatch(recv_data, cfg['rooms'])
+            dispatch(recv_data, cfg['rooms'], cfg['forbidden_words'])
             conn.close()
     except KeyboardInterrupt:
         print ('Levitan has exited')

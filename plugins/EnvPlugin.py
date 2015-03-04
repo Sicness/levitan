@@ -96,7 +96,6 @@ class EnvPlugin(PluginTemplate):
                         self.take_match, self.take_match_personal,
                         self.free_match, self.free_match_personal]
         self.envs = {}
-        #self.current_env = []
 
     def process(self, message):
         self.sender = message.Sender.FullName
@@ -111,7 +110,17 @@ class EnvPlugin(PluginTemplate):
         for method in self.methods:
             response = method(message, tag, is_personal)
             if not response is None:
-                return response.replace('/', ' /', 1)
+                return self.safe_response(message)
+
+    def safe_response(self, message):
+        for word in self.config['forbbiden_words']:
+            if word in response:
+                if 'http://' in response or 'https://' in response:
+                    return response
+                else:
+                    return response.replace('/', ' /', 1)
+        return response
+
 
     def help_match(self, message, tag=None, is_personal=False):
         if re.match('^\s*\?env\s+help*$', message.Body, re.IGNORECASE):
