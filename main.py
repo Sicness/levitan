@@ -63,7 +63,6 @@ if __name__ == '__main__':
         local_only = True
 
     for room in cfg['rooms'].keys():
-        print(room)
         if local_only:
             bot.send(cfg['rooms'][room], 'Socket listening only on localhost')
         else:
