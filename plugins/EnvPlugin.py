@@ -96,7 +96,6 @@ class EnvPlugin(PluginTemplate):
                         self.take_match, self.take_match_personal,
                         self.free_match, self.free_match_personal]
         self.envs = {}
-        #self.current_env = []
 
     def process(self, message):
         self.sender = message.Sender.FullName
@@ -221,6 +220,10 @@ class EnvPlugin(PluginTemplate):
             envs_by_room_list = [sorted(room['envs']) for room in local_rooms.values()]
         except KeyError:
             return {'status': False, 'errorMessage': 'Some room has no envs section'}
+
+        if '/' in str(envs_by_room_list):
+            return {'status': False, 'errorMessage': 'Slashes are not allowed in names/tags'}
+
 
         self.envs = dict((name, map(Environment, envl)) for name, envl in zip(local_room_tags, envs_by_room_list))
 

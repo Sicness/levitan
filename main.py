@@ -9,7 +9,6 @@ from configInitializer import load_config
 
 def dispatch(message, rooms):
     print(message)
-    message = message.replace('/', ' /', 1)
     try:
         res = json.loads(message)
         if not 'message' in res:
@@ -20,6 +19,10 @@ def dispatch(message, rooms):
 
     if 'room' in res:
         if res['room'] in rooms.keys():
+            if res['message'].startswith('/'):
+                res['message'] = '%c %s' % (res['message'][0],
+                                            res['message'][1:])
+
             bot.send(rooms[res['room']], res['message'])
         else:
             print('Unknown room tag %s' % (res['room']))
@@ -46,8 +49,8 @@ if __name__ == '__main__':
     # Tell chat rooms that Levitan is running and list plugins
     for room in cfg['rooms'].keys():
         bot.send(cfg['rooms'][room],
-                 'Levitan is up and running. I have the following plugins running:\n%s ' %
-                 '\n'.join(x.__class__.__name__ for x in plugins))
+                'Levitan is up and running. I have the following plugins running:\n%s ' %
+                '\n'.join(x.__class__.__name__ for x in plugins))
 
 
     bind = cfg['bind']
