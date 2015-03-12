@@ -16,7 +16,10 @@ class SkypeBot:
             self.skype.Attach()
 
     def MessageStatus(self, msg, status):
-        print("INCOMING> %s" % msg.Body)
+        try:
+            print("INCOMING> %s" % msg.Body)
+        except UnicodeEncodeError:
+            print("INCOMING> %s" % msg.Body.encode('utf-8').decode('utf-8')
         # msg.MarkAsSeen()
         if status == Skype4Py.cmsReceived:
             for plugin in self.plugins:
